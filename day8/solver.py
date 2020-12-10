@@ -33,7 +33,7 @@ def main():
 		inst = instructions[i].split()
 
 		if len(inst) > 2:
-			loop_item = f"{inst[0]} {int(inst[1])}"
+			loop_item = f"{inst[0]} {inst[1]}"
 			if after_infinite_loop:
 				accumulator_before_infinite_loop = accumulator
 			
@@ -44,7 +44,7 @@ def main():
 				#change bad code
 				middle = int((len(infinite_loop) - 1)/2)
 				change = infinite_loop[middle]
-				print(f"The loop was before going infinite: {original_instructions}")
+				print(f"The loop was before going infinite: {original_instructions} and last index was {len(original_instructions)}")
 				print(f"Fix this: {change}")
 				break
 			else:
