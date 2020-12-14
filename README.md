@@ -11,5 +11,8 @@ Day|Part 1|Part 2
 7|Done|Done
 8|Done|WIP
 9|Done|WIP
-10|Not started|Not started
+10|Done|WIP
 11|Not started|Not started
+12|Not started|Not started
+13|Not started|Not started
+14|Not started|Not started
