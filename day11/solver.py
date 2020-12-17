@@ -19,56 +19,61 @@ def get_input_data(source="input"):
 	else:
 		return read_csv.file_read_lines("input.csv")
 
-def get_seats_around(row, index, middle=False):
-	adjacent_seats = ""
+def get_adjacent_seats(seat, seat_index, row_index, all_rows):
 
-	if middle:
-		if index == 0:
-			adjacent_seats += row[index + 1]
-		elif index + 1 > len(row) -1:
-			adjacent_seats += row[index - 1]
-		else:
-			adjacent_seats += row[index - 1] + row[index + 1]
-	else:
-		if index == 0:
-			adjacent_seats += row[index : index + 1]
-		elif index + 1 > len(row) -1:
-			adjacent_seats += row[index - 1 : index]
-		else:		
-			adjacent_seats += row[index - 1 : index + 1]
+	x = seat_index
+	y = row_index
+	max_x = len(all_rows[row_index]) - 1
+	max_y = len(all_rows) - 1
 
-	return adjacent_seats
+	adjacent = ""
 
-		
-def get_adjent_seats(seat_index, row_index, all_rows):
-	adjacent_seats = ""
-
-	#no rows before
-	if row_index is 0:
-		middle_row = all_rows[row_index]
-		bottom_row = all_rows[row_index + 1]
-
-		adjacent_seats += get_seats_around(middle_row, seat_index, True)
-		adjacent_seats += get_seats_around(bottom_row, seat_index)
-
-	#no rows after
-	elif row_index is len(all_rows) -1:
-		top_row = all_rows[row_index - 1]
-		middle_row = all_rows[row_index]
-
-		adjacent_seats += get_seats_around(top_row, seat_index)
-		adjacent_seats += get_seats_around(middle_row, seat_index, True)
+	is_top_row = y == 0
+	is_bottom_row = y == max_y
+	is_first_seat = x == 0
+	is_last_seat = x == max_x
 	
+	top_row = None
+	current_row = all_rows[row_index]
+	bottom_row = None
+
+	range_first = x - 2 if x > 1 else 0
+	range_last = x + 2 if x + 2 <= max_x else max_x
+
+	if is_first_seat:
+		seat_range = slice(x, range_last)
+	elif is_last_seat:
+		seat_range = slice(range_first, x)
 	else:
-		top_row = all_rows[row_index - 1]
-		middle_row = all_rows[row_index]
-		bottom_row = all_rows[row_index + 1]
+		seat_range = slice(range_first, range_last)
 
-		adjacent_seats += get_seats_around(top_row, seat_index)
-		adjacent_seats += get_seats_around(middle_row, seat_index, True)
-		adjacent_seats += get_seats_around(bottom_row, seat_index)
+	#if its top row, only get current row and one bottom of it
+	if is_top_row:
+		bottom_row = all_rows[y + 1]
 
-	return adjacent_seats
+		adjacent += current_row[seat_range]
+		adjacent += bottom_row[seat_range]
+
+	#if its bottom row, get top and current rows
+	elif is_bottom_row:
+		top_row = all_rows[y - 1]
+
+		adjacent += top_row[seat_range]
+		adjacent += current_row[seat_range]
+	
+	#else get surrounding seats
+	else:
+		top_row = all_rows[y - 1]
+		bottom_row = all_rows[y + 1]
+
+		adjacent += bottom_row[seat_range]
+		adjacent += current_row[seat_range]
+		adjacent += top_row[seat_range]		
+
+	#remove current seat
+	adjacent = adjacent.replace(seat, "", 1)
+
+	return adjacent
 
 def main():
 	print("Simulate your seating area by applying the seating rules repeatedly until no seats change state. How many seats end up occupied?")
@@ -77,6 +82,7 @@ def main():
 	empty = "L"
 	occupied = "#"
 	floor = "."
+
 	repeated = False
 	previous_seating = seating
 	new_seating = []
@@ -92,15 +98,16 @@ def main():
 		for j in range(0, len(previous_seating)):
 			row = previous_seating[j]
 			new_row = ""
+			#print(f"Row is {row}")
 
 			for i in range(0, len(row)):
 				seat = row[i]
-				adjacent = get_adjent_seats(i, j, seating)
-				#print(f"Seat is {seat} and has adjacent {adjacent}")			
+				adjacent = get_adjacent_seats(seat, i, j, previous_seating)
+				#print(f"Seat is {i}. {seat} and has adjacent {adjacent}")	
 
 				if seat is empty and occupied not in adjacent:
 					new_row += occupied
-				elif seat is occupied and adjacent.count(empty) > 3:
+				elif seat is occupied and adjacent.count(occupied) >= 4:
 					new_row += empty
 				else:
 					new_row += seat

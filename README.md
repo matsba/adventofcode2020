@@ -16,3 +16,6 @@ Day|Part 1|Part 2
 12|Not started|Not started
 13|Not started|Not started
 14|Not started|Not started
+15|Not started|Not started
+16|Not started|Not started
+17|Not started|Not started
